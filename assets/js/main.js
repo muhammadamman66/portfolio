@@ -6,6 +6,52 @@
 * License: https://bootstrapmade.com/license/
 */
 
+const form = document.querySelector('.php-email-form');
+const loadingEl = document.querySelector('.loading');
+const errorEl = document.querySelector('.error-message');
+const sentEl = document.querySelector('.sent-message');
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  // reset UI
+  loadingEl.style.display = 'block';
+  errorEl.style.display = 'none';
+  sentEl.style.display = 'none';
+
+  try {
+    const res = await fetch(form.action, {
+      method: 'POST',
+      body: new FormData(form),
+      headers: { 'Accept': 'application/json' }
+    });
+
+    loadingEl.style.display = 'none';
+
+    if (res.ok) {
+      // ✅ success
+      sentEl.style.display = 'block';
+      form.reset();
+
+      // ⏳ hide success message after 1 second
+      setTimeout(() => {
+        sentEl.style.display = 'none';
+      }, 1000);
+    } else {
+      // ❌ error from Formspree
+      const data = await res.json();
+      errorEl.textContent = data.error || "Something went wrong.";
+      errorEl.style.display = 'block';
+    }
+  } catch (err) {
+    // ❌ network or JS error
+    loadingEl.style.display = 'none';
+    errorEl.textContent = err.message || "Submission failed.";
+    errorEl.style.display = 'block';
+  }
+});
+
+
 (function() {
   "use strict";
 
@@ -227,3 +273,7 @@
   document.addEventListener('scroll', navmenuScrollspy);
 
 })();
+
+
+
+
